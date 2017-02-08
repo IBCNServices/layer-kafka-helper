@@ -1,0 +1,10 @@
+name: kafka-helper
+summary: Automates the Kafka connection for consuming and producing messages
+maintainer: Sander Borny <sander.borny@intec.ugent.be>
+description: |
+  Automates the Kafka connection for consuming and producing messages
+tags:
+  - misc
+requires:
+  kafka:
+    interface: kafka
