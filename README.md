@@ -8,6 +8,14 @@ includes: ['layer:kafka-helper']
 ```
 ## IP and port
 When a relation is made with Kafka, ip and port configuration will be stored in `/home/ubuntu/kafka-helpers/kafkaip`. On completion, the state `kafka.configured` will be set.
+This info will also be stored in the unitdata.kv with 'kafka' as key:
+
+```
+from charmhelpers.core import unitdata
+
+db = unitdata.kv()
+db.get('kafka')
+```
 
 ## kafkahelper wrapper
 The layer provides two wrapper classes, KafkaReader and KafkaWriter, representing a KafkaConsumer and KafkaProducer respectively. The layer will install the module in the python path, using the module can be done using:

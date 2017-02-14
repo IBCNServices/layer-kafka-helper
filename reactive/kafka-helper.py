@@ -2,12 +2,13 @@ import os
 import site
 import errno
 import shutil
-from charmhelpers.core import hookenv, templating
+from charmhelpers.core import hookenv, templating, unitdata
 from charmhelpers.core.hookenv import status_set, config, charm_dir
 from charmhelpers.contrib.python.packages import pip_install
 from charms.reactive import when, when_not, set_state, remove_state
 
 config = hookenv.config()
+db = unitdata.kv()
 kafka_config_path = '/home/ubuntu/kafka-helpers'
 
 @when_not('kafkahelper.installed')
@@ -29,7 +30,6 @@ def configure_kafka(kafka):
         open(kafka_config_path + '/kafkaip', 'w+').close()
         configure_kafka_info(kafka)
         set_state('kafka.configured')
-        status_set('active', 'Ready')
 
 def configure_kafka_info(kafka):
     templating.render(
@@ -39,6 +39,7 @@ def configure_kafka_info(kafka):
             'kafkas': kafka.kafkas(),
         }
     )
+    db.set('kafka', kafka.kafkas())
 
 @when('kafka.configured')
 @when_not('kafka.joined')
