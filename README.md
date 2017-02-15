@@ -53,7 +53,7 @@ reader.consume(func=lambda x: print_to_screen(x, 'extra parameter'))
 The writer has the same configuration parameters as described [here](http://kafka-python.readthedocs.io/en/master/apidoc/KafkaProducer.html) and some extra configuration options. 
 Initializing the writer gives you the option to specify wheter you want to send json messages. A topic can be set when the reader is created or when the write() method is called. Finally the threaded option specifies wheter the messages are send via thread. The init signature is the following:
 ```
-def __init__(self, json=False, topic=None, threaded=False, **kwargs):
+def __init__(self, json_msg=False, topic=None, threaded=False, **kwargs):
 ```
 As a full example, we read from a topic, print the content of the message, add another field and store it in another topic:
 ```
@@ -66,7 +66,7 @@ def print_and_store(msg, writer)
     msg_dictionary['extra_field'] = 'ok'
     writer.write(msg_dictionary)
     
-writer = KafkaWriter(json=True, topic='topic1.log')
+writer = KafkaWriter(json_msg=True, topic='topic1.log')
 reader = KafkaReader(group_id='topic1-group')
 reader.consume(func=lambda x: print_and_store(x, writer))
 ```

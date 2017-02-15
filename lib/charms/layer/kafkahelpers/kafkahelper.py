@@ -31,10 +31,10 @@ class KafkaReader(KafkaObject):
 
 class KafkaWriter(KafkaObject):
 
-    def __init__(self, json=False, topic=None, threaded=False, **kwargs):
+    def __init__(self, json_msg=False, topic=None, threaded=False, **kwargs):
         super(KafkaWriter, self).__init__()
         self.DEFAULT_CONFIG = {}
-        self.json = json
+        self.json = json_msg
         self.topic = topic
         self.threaded = threaded
         for key in kwargs:
@@ -52,5 +52,5 @@ class KafkaWriter(KafkaObject):
     def produce(self, msg, topic=None):
         if topic is not None:
             self.topic = topic
-            producer = KafkaProducer(self.DEFAULT_CONFIG)
-            producer.send(topic, msg).get(timeout=30)
+        producer = KafkaProducer(**self.DEFAULT_CONFIG)
+        producer.send(topic, msg).get(timeout=30)
