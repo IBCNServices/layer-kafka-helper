@@ -1,4 +1,4 @@
-import json
+import json as json_module
 import _thread
 from kafka import KafkaConsumer, KafkaProducer
 
@@ -24,24 +24,24 @@ class KafkaReader(KafkaObject):
 
     def consume(self, func):
         consumer = KafkaConsumer(bootstrap_servers=self.kafkaConfig, **self.DEFAULT_CONFIG)
-        consumer.subscribe(topics=tuple(self.topics))
+        consumer.subscribe(topics=self.topics)
 
         for msg in consumer:
             func(msg.value.decode('utf-8'))
 
 class KafkaWriter(KafkaObject):
 
-    def __init__(self, json_msg=False, topic=None, threaded=False, **kwargs):
+    def __init__(self, json=False, topic=None, threaded=False, **kwargs):
         super(KafkaWriter, self).__init__()
         self.DEFAULT_CONFIG = {}
-        self.json = json_msg
+        self.json = json
         self.topic = topic
         self.threaded = threaded
         for key in kwargs:
             self.DEFAULT_CONFIG[key] = kwargs[key]
-        self.DEFAULT_CONFIG['bootstrap_servers'] = self.kafkaConfig
         if json:
-            self.DEFAULT_CONFIG['value_serializer'] = lambda v: json.dumps(v).encode('utf-8')
+            self.DEFAULT_CONFIG['value_serializer'] = lambda v: json_module.dumps(v).encode('utf-8')
+        self.producer = KafkaProducer(bootstrap_servers=self.kafkaConfig, **self.DEFAULT_CONFIG)
 
     def write(self, msg, topic=None):
         if self.threaded:
@@ -52,5 +52,6 @@ class KafkaWriter(KafkaObject):
     def produce(self, msg, topic=None):
         if topic is not None:
             self.topic = topic
-        producer = KafkaProducer(**self.DEFAULT_CONFIG)
-        producer.send(topic, msg).get(timeout=30)
+        if not self.json:
+            msg = msg.encode('utf-8')
+        self.producer.send(self.topic, msg).get(timeout=30)

@@ -47,7 +47,7 @@ def remove_kafka():
     hookenv.log("Kafka relation removed")
     if os.path.exists(kafka_config_path + '/kafkaip'):
         os.remove(kafka_config_path + '/kafkaip')
-    status_set('blocked', 'Waiting on Kafka relation')
+    status_set('blocked', 'Waiting for Kafka relation')
     remove_state('kafka.configured')
 
 def copy(src, dest):
