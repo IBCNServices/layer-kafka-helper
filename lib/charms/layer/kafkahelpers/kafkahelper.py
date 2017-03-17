@@ -20,7 +20,7 @@ class KafkaReader(KafkaObject):
         self.DEFAULT_CONFIG = {}
         for key in kwargs:
             self.DEFAULT_CONFIG[key] = kwargs[key]
-        self.topics = topics
+        self.topics = [topics] if isinstance(topics, str) else topics
 
     def consume(self, func):
         consumer = KafkaConsumer(bootstrap_servers=self.kafkaConfig, **self.DEFAULT_CONFIG)
