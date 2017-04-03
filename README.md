@@ -17,6 +17,10 @@ db = unitdata.kv()
 db.get('kafka')
 ```
 
+## Scaling Kafka
+When units are added or removed the `kafka.changed` flag is set. The new broker(s) information can be found in `/home/ubuntu/kafka-helpers/kafkaip`.
+It is up to the upper layer to remove this state.
+
 ## kafkahelper wrapper
 The layer provides two wrapper classes, KafkaReader and KafkaWriter, representing a KafkaConsumer and KafkaProducer respectively. The layer will install the module in the python path, using the module can be done using:
 ```

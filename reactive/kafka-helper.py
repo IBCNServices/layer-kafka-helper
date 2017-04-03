@@ -31,6 +31,15 @@ def configure_kafka(kafka):
         configure_kafka_info(kafka)
         set_state('kafka.configured')
 
+@when('kafka.configured', 'kafka.ready')
+@when_not('kafka.changed')
+def update_kafkas(kafka):
+    hookenv.log('Updating kafkas')
+    if db.get('kafka') != kafka.kafkas():
+        hookenv.log('New kafka configuration detected')
+        configure_kafka_info(kafka)
+        set_state('kafka.changed')
+
 def configure_kafka_info(kafka):
     templating.render(
         source='kafka.connect',
