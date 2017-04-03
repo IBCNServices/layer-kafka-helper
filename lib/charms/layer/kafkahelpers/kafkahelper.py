@@ -9,9 +9,9 @@ class KafkaObject(object):
 
     def kafka_config(self):
         f = open('/home/ubuntu/kafka-helpers/kafkaip', 'r')
-        config = f.readline()
+        config = f.readline().strip()
         f.close()
-        return config
+        return config.split(',')
 
 class KafkaReader(KafkaObject):
 
