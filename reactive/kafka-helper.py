@@ -43,12 +43,21 @@ def update_kafkas(kafka):
 def configure_kafka_info(kafka):
     templating.render(
         source='kafka.connect',
-        target= kafka_config_path + '/kafkaip',
+        target=kafka_config_path + '/kafkaip',
         context={
-            'kafkas': kafka.kafkas(),
+            'units': kafka.kafkas(),
         }
     )
     db.set('kafka', kafka.kafkas())
+    hookenv.log(db.get('kafka'))
+    templating.render(
+        source='kafka.connect',
+        target=kafka_config_path + '/zookeeper',
+        context={
+            'units': kafka.zookeepers(),
+        }
+    )
+    db.set('zookeeper', kafka.zookeepers())
 
 @when('kafka.configured')
 @when_not('kafka.joined')
