@@ -3,13 +3,13 @@ import site
 import errno
 import shutil
 from charmhelpers.core import hookenv, templating, unitdata
-from charmhelpers.core.hookenv import status_set, config, charm_dir
+from charmhelpers.core.hookenv import status_set, charm_dir
 from charmhelpers.contrib.python.packages import pip_install
 from charms.reactive import when, when_not, set_state, remove_state
 
-config = hookenv.config()
 db = unitdata.kv()
 kafka_config_path = '/home/ubuntu/kafka-helpers'
+
 
 @when_not('kafkahelper.installed')
 def install_kafkahelper():
@@ -18,9 +18,11 @@ def install_kafkahelper():
     if not os.path.exists(kafka_config_path):
         os.makedirs(kafka_config_path)
     dis_packages = site.getsitepackages()[0]
-    copy(charm_dir() + '/lib/charms/layer/kafkahelpers', dis_packages + '/kafkahelpers')
+    copy(charm_dir() + '/lib/charms/layer/kafkahelpers',
+         dis_packages + '/kafkahelpers')
     status_set('blocked', 'Waiting for Kafka relation')
     set_state('kafkahelper.installed')
+
 
 @when('kafka.joined')
 @when_not('kafka.configured')
@@ -31,14 +33,17 @@ def configure_kafka(kafka):
         configure_kafka_info(kafka)
         set_state('kafka.configured')
 
+
 @when('kafka.configured', 'kafka.ready')
 @when_not('kafka.changed')
 def update_kafkas(kafka):
     hookenv.log('Updating kafkas')
-    if db.get('kafka') != kafka.kafkas():
+    if (db.get('kafka') != kafka.kafkas() or
+            db.get('zookeeper') != kafka.zookeepers()):
         hookenv.log('New kafka configuration detected')
         configure_kafka_info(kafka)
         set_state('kafka.changed')
+
 
 def configure_kafka_info(kafka):
     templating.render(
@@ -49,7 +54,6 @@ def configure_kafka_info(kafka):
         }
     )
     db.set('kafka', kafka.kafkas())
-    hookenv.log(db.get('kafka'))
     templating.render(
         source='kafka.connect',
         target=kafka_config_path + '/zookeeper',
@@ -59,6 +63,7 @@ def configure_kafka_info(kafka):
     )
     db.set('zookeeper', kafka.zookeepers())
 
+
 @when('kafka.configured')
 @when_not('kafka.joined')
 def remove_kafka():
@@ -67,6 +72,7 @@ def remove_kafka():
         os.remove(kafka_config_path + '/kafkaip')
     status_set('blocked', 'Waiting for Kafka relation')
     remove_state('kafka.configured')
+
 
 def copy(src, dest):
     try:
